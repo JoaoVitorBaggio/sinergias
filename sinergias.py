@@ -36,11 +36,28 @@ def read_instances(filename):
     return budget, number_equipments, equipment_cost, equipment_power, sinergy
 
 
-def objective_function(solution, equipment_power, sinergy):
-    objective_function_value = 0
-    for i in range(len(solution) - 1):
-        objective_function_value = objective_function_value + (solution[i] * equipment_power[i])
-    print("Objective function value:", objective_function_value)
+
+def calculate_objective_value(solution, equipment_power, sinergy,budget):
+    value = 0
+    for i in range(len(solution)-1):
+        for j in range(len(solution)-1):
+        
+            if solution[i] == 1 and solution[j] == 1:
+                 if i > j:
+                    if ( (value + solution[i] * equipment_power[i] + sinergy[i][j]) <= budget):
+                        value += sinergy[i][j] +  equipment_power[i]
+
+                 if j > i:
+                    if ( (value +  equipment_power[i] + sinergy[j][i]) <= budget):
+                        value += sinergy[j][i] +  equipment_power[i]
+                    
+
+    print("Objective function value:", value)
+    return value
+
+def is_valid_solution(solution, equipment_cost, budget):
+    total_cost = sum([solution[i] * equipment_cost[i] for i in range(len(solution))])
+    return total_cost <= budget
 
 
 def get_initial_solution(number_equipments, equipment_cost, budget, equipment_power):
@@ -67,8 +84,10 @@ def find_best_power_candidates(equipament_power):
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/01.txt")
 
-objective_function([1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy)
+#objective_function([1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy)
 
 find_best_power_candidates(equipment_power)
 
 get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
+
+calculate_objective_value([1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy,budget)

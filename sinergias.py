@@ -1,4 +1,5 @@
 import math
+import random
 
 
 def read_instances(filename):
@@ -25,40 +26,25 @@ def read_instances(filename):
         aux = lines[i].split()
         aux_lst = list(map(int, aux))
         sinergy.append(aux_lst)
-   
 
-    print("Budget:", budget)
-    print("Number of equipments:", number_equipments)   
-    print("Equipment cost:", equipment_cost)
-    print("Equipment power:", equipment_power)
-    print("Sinergy:", sinergy)
-    
     return budget, number_equipments, equipment_cost, equipment_power, sinergy
-
 
 
 def calculate_objective_value(solution, equipment_power, sinergy,budget):
     value = 0
+    total_cost = 0
+    for i in range(len(solution)-1):
+        if (total_cost + equipment_cost[i]) <= budget:
+            value += solution[i] * equipment_power[i]
+            total_cost += solution[i] * equipment_cost[i]
+
+    
     for i in range(len(solution)-1):
         for j in range(len(solution)-1):
-        
             if solution[i] == 1 and solution[j] == 1:
-                 if i > j:
-                    if ( (value + solution[i] * equipment_power[i] + sinergy[i][j]) <= budget):
-                        value += sinergy[i][j] +  equipment_power[i]
+                value += sinergy[i][j]
 
-                 if j > i:
-                    if ( (value +  equipment_power[i] + sinergy[j][i]) <= budget):
-                        value += sinergy[j][i] +  equipment_power[i]
-                    
-
-    print("Objective function value:", value)
     return value
-
-def is_valid_solution(solution, equipment_cost, budget):
-    total_cost = sum([solution[i] * equipment_cost[i] for i in range(len(solution))])
-    return total_cost <= budget
-
 
 def get_initial_solution(number_equipments, equipment_cost, budget, equipment_power):
     best_power_candidates = find_best_power_candidates(equipment_power)
@@ -82,12 +68,25 @@ def find_best_power_candidates(equipament_power):
     print("Best power candidates:", best_power_candidates)
     return best_power_candidates
 
-budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/01.txt")
 
-#objective_function([1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy)
+
+budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/10.txt")
+
+
+
+
 
 find_best_power_candidates(equipment_power)
 
-get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
+initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
-calculate_objective_value([1, 1, 1, 0, 1, 1, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy,budget)
+
+
+#x = calculate_objective_value([0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy,budget)
+
+x = calculate_objective_value(initial_solution, equipment_power, sinergy,budget)
+
+
+print("Objective function value:", x)
+
+#calculate_objective_value(solution, equipment_power, sinergy,budget)

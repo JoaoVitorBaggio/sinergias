@@ -110,7 +110,7 @@ def tabu_search(initial_solution, equipment_cost, equipment_power, sinergy, budg
             best_solution = best_neighbor
             best_objective_value = best_neighbor_value
             with open(output_file, 'a') as f:
-                f.write(f"New best solution found: {best_solution}\n, Objective Value: {best_objective_value}  Time:{time.time() - start_time:.2f}s \n\n")
+                f.write(f"New best solution found:\n Solution: {best_solution}\n Objective Value: {best_objective_value}  Time:{time.time() - start_time:.2f}s \n\n")
 
         
 

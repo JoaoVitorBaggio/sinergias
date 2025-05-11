@@ -90,10 +90,14 @@ def tabu_search(initial_solution, equipment_cost, equipment_power, sinergy, budg
     tabu_list = []
     start_time = time.time()  # Record the start time
 
+    iter = 0
+
     while time.time() - start_time < time_limit:  # Check if the elapsed time is within the limit
         neighborhood = generate_neighborhood(current_solution, equipment_cost, budget)
         best_neighbor = None
         best_neighbor_value = float('-inf')
+
+        iter= iter + 1
 
         for neighbor in neighborhood:
             if neighbor not in tabu_list:
@@ -112,7 +116,7 @@ def tabu_search(initial_solution, equipment_cost, equipment_power, sinergy, budg
             with open(output_file, 'a') as f:
                 f.write(f"New best solution found:\n Solution: {best_solution}\n Objective Value: {best_objective_value}  Time:{time.time() - start_time:.2f}s \n\n")
 
-        
+       
 
         tabu_list.append(current_solution)
         if len(tabu_list) > tabu_tenure:
@@ -120,6 +124,7 @@ def tabu_search(initial_solution, equipment_cost, equipment_power, sinergy, budg
 
     #print("Best solution found:", best_solution)
     #print("Best objective value:", best_objective_value)
+    print("Iterations:", iter)
     return best_solution
 
 def write_tabu_search_results(filename, initial_solution, equipment_cost, equipment_power, sinergy, budget, time_limit, tabu_tenure):
@@ -142,21 +147,13 @@ def write_tabu_search_results(filename, initial_solution, equipment_cost, equipm
 
 
 
-"""
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/01.txt")
-initial
-
-
-
-
-print(sinergy)
-x = calculate_synergy_potential(sinergy)
-print("Synergy potential:", x)
-
+initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=10)
 
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300, tabu_tenure=10)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=10)
+print("============================================================")
 
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/02.txt")
@@ -164,10 +161,9 @@ initial_solution = get_initial_solution(number_equipments, equipment_cost, budge
 
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=10)
 
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300, tabu_tenure=10)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=10)
-
-
+print("============================================================")
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/03.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
@@ -176,6 +172,8 @@ write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=in
 
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=25)
 
+print("============================================================")
+
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/04.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
@@ -183,16 +181,18 @@ write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=in
 
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=30)
 
+print("============================================================")
+
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/05.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=150)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=75)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=150)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=75)
 
+print("============================================================")
 
-"""
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/06.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
@@ -200,31 +200,34 @@ write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=in
 
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=75)
 
-"""
+print("============================================================")
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/07.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=300)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=150)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=300)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=150)
 
+print("============================================================")
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/08.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=300)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=150)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=300)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=150)
 
+print("============================================================")
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/09.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=450)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=5, tabu_tenure=275)
 
-write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=450)
+write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=275)
 
+print("============================================================")
 
 budget, number_equipments, equipment_cost, equipment_power, sinergy = read_instances("./instances/10.txt")
 initial_solution = get_initial_solution(number_equipments, equipment_cost, budget, equipment_power)
@@ -234,12 +237,6 @@ write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=in
 write_tabu_search_results(filename="tabu_search_results.txt",initial_solution=initial_solution,equipment_cost=equipment_cost,equipment_power=equipment_power,sinergy=sinergy,budget=budget,time_limit=300,tabu_tenure=275)
 
 
-#x = calculate_objective_value([0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], equipment_power, sinergy,budget)
-
-#x = calculate_objective_value(initial_solution, equipment_power, sinergy,budget)
-#print("Objective function value:", x)
-
-"""
 
 
 

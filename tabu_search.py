@@ -1,6 +1,6 @@
 import time
 import sys
-from synergy_problem import read_instances, Synergy_Solution, represent_selected
+from synergy_problem import read_instances, Synergy_Solution, Synergy_Problem_Data
 
 """
 Como chamar esse script:
@@ -71,74 +71,92 @@ def flip_delta(sol, i, power, cost, budget, synergy, current_val):
                 delta -= synergy[i][j]
     return current_val + delta
 
+def calculate_power(solution, problem: Synergy_Problem_Data):
+    total = 0
+    for i in range(problem.n):
+        if solution[i] == 1:
+            total += problem.power_list[i]
+    for i in range(problem.n):
+        for j in range(i + 1, problem.n):
+            if solution[i] == 1 and solution[j] == 1:
+                total += problem.synergy_matrix[i][j] + problem.synergy_matrix[j][i]
+    return total
 
-def tabu_search(problem_instance,
-                max_iter=1000, tabu_tenure=10):
-    """
-    Perform Tabu Search with:
-      - on-the-fly neighbor generation (flip one bit)
-      - incremental evaluation (flip_delta)
-      - aspiration: allow tabu move if improves best
-    """
-    # unpack problem instance
-    budget = problem_instance.budget
-    n = problem_instance.n
-    cost = problem_instance.cost_list
-    power = problem_instance.power_list
-    synergy = problem_instance.synergy_matrix
+def calculate_cost(solution, problem: Synergy_Problem_Data):
+    return sum(c for c, sel in zip(problem.cost_list, solution) if sel == 1)
 
-    # initial
-    sol = initial_solution(n, cost, power, budget)
-    best = sol[:]
-    best_val = compute_value(sol, power, synergy)
-    current_val = best_val
-    tabu = {}  # map index -> remaining tenure
+def generate_initial_greedy_solution(problem: Synergy_Problem_Data):
+    solution = [0] * problem.n
+    items = list(range(problem.n))
+    efficiency = [(i, problem.power_list[i] / problem.cost_list[i] if problem.cost_list[i] > 0 else 0) for i in items]
+    efficiency.sort(key=lambda x: x[1], reverse=True)
+    total_cost = 0
+    for i, _ in efficiency:
+        if total_cost + problem.cost_list[i] <= problem.budget:
+            solution[i] = 1
+            total_cost += problem.cost_list[i]
+    print(f"Solução inicial gulosa: {solution}, Custo: {total_cost}, Poder: {calculate_power(solution, problem)}")
+    return solution
 
-    start = time.time()
+def generate_neighbors(solution, problem: Synergy_Problem_Data):
+    neighbors = []
+    for i in range(problem.n):
+        new_solution = solution.copy()
+        new_solution[i] = 1 - new_solution[i]
+        neighbors.append((new_solution, i))
+    return neighbors
+
+def tabu_search(problem: Synergy_Problem_Data, max_iter=1000, tabu_size=10, time_limit=300):
+    current_solution = generate_initial_greedy_solution(problem)
+    best_solution = current_solution
+    best_value = calculate_power(best_solution, problem)
+    tabu_list = []
+    start_time = time.time()
+
     for iteration in range(max_iter):
-        candidate = None
-        candidate_val = float('-inf')
-        move_idx = None
-
-        # explore neighborhood by flipping each bit
-        for i in range(n):
-            new_val = flip_delta(sol, i, power, cost, budget, synergy, current_val)
-            if new_val is None:
-                continue  # invalid by budget
-            is_tabu = i in tabu and tabu[i] > 0
-            # aspiration: if this move improves best, accept it
-            if is_tabu and new_val <= best_val:
-                continue
-            # select best candidate
-            if new_val > candidate_val:
-                candidate = sol[:]
-                candidate[i] = 1 - candidate[i]
-                candidate_val = new_val
-                move_idx = i
-
-        if candidate is None:
+        elapsed_time = time.time() - start_time
+        if elapsed_time >= time_limit:
+            print(f"\nTempo limite de {time_limit} segundos atingido. Encerrando busca.")
             break
 
-        # apply best move
-        sol = candidate
-        current_val = candidate_val
+        neighbors = generate_neighbors(current_solution, problem)
+        candidates = []
+        for neighbor, move in neighbors:
+            cost = calculate_cost(neighbor, problem)
+            if cost <= problem.budget and (move not in tabu_list):
+                candidates.append((neighbor, move))
 
-        # update tabu list: decrement and remove expired
-        tabu = {k: v-1 for k, v in tabu.items() if v-1 > 0}
-        # add this move to tabu
-        tabu[move_idx] = tabu_tenure
+        if not candidates:
+            candidates = [(neighbor, move) for neighbor, move in neighbors if calculate_cost(neighbor, problem) <= problem.budget]
+            if not candidates:
+                print("Sem vizinhos válidos, parando busca.")
+                break
 
-        # update global best
-        if current_val > best_val:
-            best = sol[:]
-            best_val = current_val
-            solution_representation = represent_selected(sol) #type: ignore
+        selected_neighbor, selected_move = max(candidates, key=lambda x: calculate_power(x[0], problem))
+        neighbor_value = calculate_power(selected_neighbor, problem)
 
-            # print progress
-            print(f"Iteration {iteration+1}: Best value = {solution_representation}, Time elapsed: {time.time() - start:.2f}s, Solution = {best}")
+        if neighbor_value > best_value:
+            best_value = neighbor_value
+            best_solution = selected_neighbor
+            time_to_best = time.time() - start_time
+            print(f"\n>>> Nova melhor solução! Valor = {best_value}, Tempo decorrido: {time_to_best:.2f} segundos <<<")
 
-    elapsed = time.time() - start
-    return Synergy_Solution(best, best_val, elapsed)
+        print(f"\nIteração {iteration + 1}:")
+        print(f"Movimento tabu adicionado: flip no equipamento índice {selected_move}")
+        tabu_list.append(selected_move)
+        if len(tabu_list) > tabu_size:
+            removed = tabu_list.pop(0)
+            print(f"Removendo movimento mais antigo da lista tabu: índice {removed}")
+
+        print(f"Lista Tabu atual: {tabu_list}")
+        print(f"Poder da solução atual: {neighbor_value}, Custo: {calculate_cost(selected_neighbor, problem)}")
+
+        current_solution = selected_neighbor
+
+    total_time = time.time() - start_time
+    print(f"\nBusca finalizada. Tempo total: {total_time:.2f} segundos.")
+
+    return Synergy_Solution(best_solution, best_value, total_time)
 
 
 def main():
@@ -149,7 +167,7 @@ def main():
     problem_instance = read_instances(filename)
     solution = tabu_search(
         problem_instance,
-        max_iter=max_iter, tabu_tenure=tenure
+        max_iter=max_iter, tabu_size=tenure
     )
     print(solution)
 

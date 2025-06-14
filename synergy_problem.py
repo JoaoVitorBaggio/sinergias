@@ -20,7 +20,7 @@ class Synergy_Solution:
     
     def __str__(self) -> str:
         selected_representation = represent_selected(self.selected)
-        return f"Solution(selected={selected_representation}, total_power={self.total_power}, time_elapsed={self.time_elapsed:.2f})"
+        return f"total_power={self.total_power}, time_elapsed={self.time_elapsed:.2f},\n selected={selected_representation}"
 
 def represent_selected(selected):
     """

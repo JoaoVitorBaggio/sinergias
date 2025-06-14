@@ -50,25 +50,27 @@ def integer_formulation(problem_instance, max_time=None, seed=None):
     x = [pulp.LpVariable(f"x_{i}", cat='Binary') for i in range(n)]
 
     # Auxiliar decision variables for synergy
+    # Represents if both equipment i and j are selected
+    # Only create variables for pairs (i, j) where i < j and synergy is positive
     y = {
         (i, j): pulp.LpVariable(f"y_{i}_{j}", cat='Binary')
         for i in range(n)
         for j in range(i)
+        if synergy[i][j] > 0
     }
 
     # Objective function: maximize power and synergy
     prob += pulp.lpSum(power[i] * x[i] for i in range(n)) + \
-            pulp.lpSum(synergy[i][j] * y[(i, j)] for i in range(n) for j in range(i))
+            pulp.lpSum(y[(i, j)] for (i, j) in y.keys())
 
     # Budget constraint
     prob += pulp.lpSum(cost[i] * x[i] for i in range(n)) <= budget
 
     # Synergy constraints: y_ij = 1 if both x_i and x_j are selected
-    for i in range(n):
-        for j in range(i):
-            prob += y[(i, j)] <= x[i]
-            prob += y[(i, j)] <= x[j]
-            prob += y[(i, j)] >= x[i] + x[j] - 1  # y_ij = 1 if both are selected
+    for (i, j) in y.keys():
+        prob += y[(i, j)] <= x[i]
+        prob += y[(i, j)] <= x[j]
+        prob += y[(i, j)] >= x[i] + x[j] - 1  # y_ij = 1 if both are selected
 
     # Choose solver and set time limit and seed if provided
     solver = pulp.PULP_CBC_CMD()

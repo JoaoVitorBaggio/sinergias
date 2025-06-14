@@ -28,7 +28,7 @@ def represent_selected(selected):
     :param selected: A list of binary values (0 or 1).
     :return: A list of indices where the value is 1.
     """
-    return [i for i, val in enumerate(selected) if val > 0.5]
+    return [i for i, val in enumerate(selected) if val > 0]
 
 def read_instances(filename):
     """

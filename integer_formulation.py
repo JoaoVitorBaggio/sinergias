@@ -73,11 +73,11 @@ def integer_formulation(problem_instance, max_time=None, seed=None):
         prob += y[(i, j)] >= x[i] + x[j] - 1  # y_ij = 1 if both are selected
 
     # Choose solver and set time limit and seed if provided
-    solver = pulp.PULP_CBC_CMD()
+    solver = pulp.PULP_CBC_CMD(cuts=True, msg=True, gapRel=0.01, presolve=True)
     if max_time is not None:
         solver.timeLimit = max_time
     if seed is not None:
-        solver.options.append(f'Seed={seed}')
+        solver.options.append(f'--randomSeed {seed}')
 
     # Solve the problem
     prob.solve(solver)
